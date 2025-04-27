@@ -3,22 +3,23 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Spoon Loader – Image‑based</title>
+<title>Spoon Accumulation</title>
 <style>
-  :root{
-    --stroke:#141414;                 /* dark outline */
-    --body:#ffffff;                   /* light bluish body */
-    --fill:#8aaf82;                   /* darker bluish fill */
-    --duration:8s;
+  :root {
+    --stroke: #141414; /* dark outline */
+    --body: #ffffff; /* light body */
+    --fill-gray: #d3d3d3; /* gray background handle */
+    --fill-green: #8aaf82; /* green fill color */
   }
-  html,body{
-    margin:0;
-    height:100%;
-    display:flex;
+  html, body {
+    margin: 0;
+    height: 100%;
+    display: flex;
     flex-direction: column;
-    align-items:center;
-    justify-content:center;
-    background:#f3f4f6;
+    align-items: center;
+    justify-content: center;
+    background: #f3f4f6;
+    font-family: Arial, Helvetica, sans-serif;
   }
   svg {
     width: 300px;
@@ -26,71 +27,70 @@
     display: block;
     margin-bottom: 20px;
   }
-  /* animated liquid fill */
-  #liquid-handle {
-    transform-box: fill-box;
-    transform-origin: left center;
-    animation: handleFlow 2s linear forwards;
-  }
-  @keyframes handleFlow {
-    0%   { transform: scaleX(0); }
-    100% { transform: scaleX(1); }
+  #percentageText {
+    font-size: 32px;
+    font-weight: 700;
+    color: #374151;
   }
 </style>
 </head>
 <body>
 
-<!-- horizontal spoon loader -->
 <svg viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <clipPath id="bowlClip">
       <ellipse cx="220" cy="40" rx="50" ry="30"/>
     </clipPath>
   </defs>
-  <!-- handle -->
+
+  <!-- Gray handle background -->
   <rect x="20" y="33" width="150" height="14" rx="7"
-        fill="var(--body)" stroke="var(--stroke)" stroke-width="8"/>
-  <!-- handle liquid fill -->
-  <rect id="liquid-handle" x="22" y="34" width="150" height="11" rx="9"
-        fill="var(--fill)" />
-  <!-- bowl background -->
-  <ellipse cx="220" cy="40" rx="50" ry="30" fill="var(--body)" stroke="none"/>
-  <!-- liquid ellipse animation -->
-  <ellipse id="liquid" cx="170" cy="40" rx="0" ry="30"
-           fill="var(--fill)" clip-path="url(#bowlClip)">
-    <animate attributeName="rx" from="0" to="50" dur="6s" begin="2s" fill="freeze" />
-    <animate attributeName="cx" from="170" to="220" dur="6s" begin="2s" fill="freeze" />
-  </ellipse>
-  <!-- bowl outline -->
-  <ellipse cx="220" cy="40" rx="50" ry="30" fill="none"
-           stroke="var(--stroke)" stroke-width="8"/>
-  <!-- shine -->
-  <path d="M190,30 Q220,10 250,30" fill="none"
-        stroke="#ffffffaa" stroke-width="6" stroke-linecap="round"
-        clip-path="url(#bowlClip)"/>
-</svg>
+        fill="var(--fill-gray)" stroke="var(--stroke)" stroke-width="8"/>
+
+  <!-- Green handle fill -->
+  <rect id="handle-fill" x="20" y="33" width="0" height="14" rx="7"
+        fill="var(--fill-green)" />
+
+  <!-- Bowl background -->
+  <ellipse cx="220" cy="40" rx="50" ry="30" fill="var(--body)" stroke="var(--stroke)" stroke-width="8"/>
 
 </svg>
 
-<div id="percentage" style="margin-top: 20px; font-size: 32px; font-weight: 700; color: #4b5563; font-family: 'Comic Sans MS', 'Fredoka', 'Poppins', cursive, sans-serif; text-align: center;">
-  Checking Microplasticity 0%
-</div>
+<div id="percentageText">Accumulation 0%</div>
 
 <script>
-  const percentageText = document.getElementById('percentage');
-  let start = Date.now();
-  const totalDuration = 8000; // 8 seconds
+  const percentageText = document.getElementById('percentageText');
+  const handleFill = document.getElementById('handle-fill');
 
-  function update() {
-    const elapsed = Date.now() - start;
-    let percent = Math.min((elapsed / totalDuration) * 100, 100);
-    percentageText.textContent = `Checking Microplasticity ${Math.floor(percent)}%`;
-    if (percent < 100) {
-      requestAnimationFrame(update);
+  // Get percentage from URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const percentParam = parseFloat(urlParams.get('percent')) || 0;
+
+  const targetPercent = Math.min(percentParam, 100); // Clamp at 100%
+  const targetWidth = 150 * (targetPercent / 100); // Handle is 150 units long
+
+  let currentWidth = 0;
+  const duration = 2000; // 2 seconds animation
+  const startTime = Date.now();
+
+  function animate() {
+    const elapsed = Date.now() - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+
+    const widthNow = targetWidth * progress;
+    handleFill.setAttribute('width', widthNow);
+
+    const displayPercent = Math.floor(targetPercent * progress);
+    percentageText.textContent = `Accumulation ${displayPercent}%`;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    } else {
+      percentageText.textContent = `Accumulation ${Math.floor(targetPercent)}%`;
     }
   }
 
-  requestAnimationFrame(update);
+  animate();
 </script>
 
 </body>
