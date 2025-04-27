@@ -5,19 +5,21 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
     <style>
         body {
+            background-color: #0b3d0b;
             margin: 0;
             font-family: 'Georgia', 'Times New Roman', Times, serif;
+            color: #111;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
             overflow-x: hidden;
         }
         header {
-            background-color: #0b3d0b;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem 2rem;
+            background-color: #0b3d0b;
             font-weight: bold;
             font-size: 1rem;
             z-index: 10;
@@ -58,12 +60,22 @@
         main {
             flex: 1;
             display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 2rem 5rem;
-            background-color: #ffffff;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 4rem 5rem;
             position: relative;
+        }
+        .background-shape {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            z-index: 0;
         }
         .quote-container {
             position: absolute;
@@ -79,79 +91,64 @@
             font-family: 'Times New Roman', Times, serif;
             font-size: 2rem;
             font-style: italic;
-            color: #374151;
+            color: #d1d5db;
         }
         .quote-source {
             font-size: 1.2rem;
             display: block;
             margin-top: 0.5rem;
-            color: #6b7280;
+            color: #a1a1aa;
         }
         .main-content {
             position: relative;
             z-index: 1;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             align-items: flex-start;
+            justify-content: space-between;
             opacity: 0;
             transition: opacity 1s ease;
             text-align: left;
-            max-width: 500px;
+            width: 100%;
+        }
+        .left-content {
+            max-width: 50%;
+            display: flex;
+            flex-direction: column;
+        }
+        .right-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .main-title {
             font-size: 2.5rem;
             font-weight: bold;
             margin-bottom: 1rem;
-            color: #111111;
+            color: white;
         }
         .subtitle {
             font-size: 1.2rem;
-            color: #333333;
+            color: #d1d5db;
             margin-bottom: 2rem;
             line-height: 1.8;
         }
-        .button-group {
-            display: flex;
-            gap: 1rem;
+        #uploadForm {
             margin-top: 1rem;
         }
         .btn {
-            background-color: #0b3d0b;
-            color: #ffffff;
+            background-color: #ffffff;
+            color: #0b3d0b;
             padding: 0.75rem 1.5rem;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-            font-family: 'Georgia', 'Times New Roman', Times, serif;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
         .btn:hover {
-            background-color: #388e3c;
+            background-color: #d1d5db;
             transform: scale(1.05);
-        }
-        .image-space {
-            flex: 1;
-            height: 400px;
-            margin-left: 5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        #bottleImage {
-            height: 450px;
-            width: auto;
-            margin-top: 50px;
-            transition: transform 1.2s ease, opacity 1.2s ease;
-        }
-        #bottleImage.fall {
-            transform: translateY(300px) rotate(30deg);
-            opacity: 0;
         }
         #webcamContainer {
             margin-top: 2rem;
@@ -166,7 +163,7 @@
             display: none;
             margin-top: 2rem;
             font-size: 1.2rem;
-            color: #374151;
+            color: #d1d5db;
         }
         #checkmark {
             display: none;
@@ -189,6 +186,14 @@
             background-color: red;
             border-radius: 10px;
             transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
+        }
+        footer {
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #d1d5db;
+            background-color: #0b3d0b;
+            z-index: 10;
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -218,6 +223,8 @@
 </header>
 
 <main>
+    <div class="background-shape"></div>
+
     <div class="quote-container" id="quoteContainer">
         <p class="quote-text">
             "The Human Brain May Contain as Much as a Spoon’s Worth of Microplastics"
@@ -227,18 +234,25 @@
     </div>
 
     <div class="main-content" id="mainContent">
-        <div class="main-title">SafeSwap</div>
+        <div class="left-content">
+            <div class="main-title">
+                SafeSwap
+            </div>
 
-        <div class="subtitle">
-            Microplastics are tiny plastic fragments less than 5 micrometers in diameter. Emerging research warns of their largely unknown effects on human health.<br><br>
-            SafeSwap uses cutting-edge computer vision and object detection to help you identify everyday items that may contribute to microplastic exposure over time.
+            <div class="subtitle">
+                Microplastics are tiny plastic fragments less than 5 micrometers in diameter. Emerging research warns of their largely unknown effects on human health.<br><br>
+                SafeSwap uses cutting-edge computer vision and object detection to help you identify everyday items that may contribute to microplastic exposure over time.
+            </div>
+
+            <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                <label for="fileInput" class="btn">Upload Image</label>
+                <input type="file" name="file" accept="image/*" id="fileInput" style="display:none;">
+            </form>
         </div>
 
-        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="button-group">
-            <label for="fileInput" class="btn">Upload Image</label>
+        <div class="right-content">
             <button type="button" id="startWebcamBtn" class="btn">Start Scanning</button>
-            <input type="file" name="file" accept="image/*" id="fileInput" style="display:none;">
-        </form>
+        </div>
 
         <div id="webcamContainer">
             <video id="video" width="320" height="240" autoplay muted></video>
@@ -252,18 +266,17 @@
             <div id="confidenceBar"></div>
         </div>
     </div>
-
-    <div class="image-space" id="bottleContainer" onclick="breakBottle()">
-        <img src="{{ url_for('static', filename='microplasticwaterbottle.png') }}" alt="Water Bottle" id="bottleImage">
-    </div>
 </main>
+
+<footer>
+    SafeSwap Project — Empowering Safer Choices
+</footer>
 
 <script>
 window.addEventListener('load', () => {
     const quote = document.getElementById('quoteContainer');
     const mainContent = document.getElementById('mainContent');
     const navbarLinks = document.querySelectorAll('#navbar a');
-    const bottleContainer = document.getElementById('bottleContainer');
 
     setTimeout(() => {
         quote.style.animation = "fadeOut 2s forwards";
@@ -272,7 +285,6 @@ window.addEventListener('load', () => {
     setTimeout(() => {
         quote.style.display = "none";
         mainContent.style.opacity = 1;
-        bottleContainer.style.opacity = 1;
         navbarLinks.forEach((link, index) => {
             setTimeout(() => {
                 link.classList.add('show');
@@ -284,8 +296,8 @@ window.addEventListener('load', () => {
 const startWebcamBtn = document.getElementById('startWebcamBtn');
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
-const uploadForm = document.getElementById('uploadForm');
 const fileInput = document.getElementById('fileInput');
+const uploadForm = document.getElementById('uploadForm');
 const loadingSpinner = document.getElementById('loadingSpinner');
 const checkmark = document.getElementById('checkmark');
 const confidenceBarContainer = document.getElementById('confidenceBarContainer');
@@ -297,7 +309,6 @@ startWebcamBtn.addEventListener('click', async () => {
     video.style.display = "block";
     loadingSpinner.style.display = "block";
     confidenceBarContainer.style.display = "block";
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     startDetectionLoop();
 });
 
@@ -308,8 +319,10 @@ fileInput.addEventListener('change', () => {
     }
 });
 
+let detectionInterval; // <- ADD THIS AT THE TOP
+
 function startDetectionLoop() {
-    setInterval(async () => {
+    detectionInterval = setInterval(async () => { // <- SAVE interval ID
         const context = canvas.getContext('2d');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -326,6 +339,7 @@ function startDetectionLoop() {
         const result = await response.json();
 
         if (result.success) {
+            clearInterval(detectionInterval); // <-- STOP scanning after success!
             loadingSpinner.style.display = "none";
             checkmark.style.display = "block";
             confidenceBar.style.width = "100%";
@@ -350,10 +364,6 @@ function startDetectionLoop() {
     }, 1500);
 }
 
-function breakBottle() {
-    const bottleImage = document.getElementById('bottleImage');
-    bottleImage.classList.add('fall');
-}
 </script>
 
 </body>
