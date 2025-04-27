@@ -141,6 +141,47 @@
 <main>
     <h1>Scan History</h1>
 
+    <!-- Spoon Fill Explanation -->
+    <div style="max-width: 600px; margin: 0 auto 20px auto; text-align: center; color: #4a5568; line-height: 1.6;">
+        <p style="font-size: 1.1rem; margin-bottom: 15px;">
+            This spoon represents the estimated microplastic accumulation if you were to use all the scanned items below every day for the next 10 years. 
+            A full spoon (100%) equals the mass of a standard 5g plastic spoon.
+        </p>
+    </div>
+
+    <!-- Spoon Fill Visualization (Animated SVG) -->
+    <div style="width: 120px; margin: 0 auto 30px auto; text-align: center;">
+        <div style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 4px;">
+            {{ spoon_percentage }}% full
+        </div>
+        <svg id="spoon-svg" viewBox="0 0 60 180" width="100%" height="300">
+            <!-- Spoon Bowl Outline -->
+            <ellipse cx="30" cy="45" rx="18" ry="25" fill="#eee" stroke="#888" stroke-width="2"/>
+            <!-- Spoon Handle -->
+            <rect x="26" y="70" width="8" height="90" rx="4" fill="#eee" stroke="#888" stroke-width="2"/>
+            <clipPath id="spoon-shape">
+                <ellipse cx="30" cy="45" rx="18" ry="25"/>
+                <rect x="26" y="70" width="8" height="90" rx="4"/>
+            </clipPath>
+            <!-- Handle Fill -->
+            <rect id="handle-fill" x="26" y="160" width="8" height="0" fill="url(#blue-gradient)" clip-path="url(#spoon-shape)"/>
+            <!-- Bowl Fill -->
+            <rect id="bowl-fill" x="12" y="70" width="36" height="0" fill="url(#blue-gradient)" clip-path="url(#spoon-shape)"/>
+            <defs>
+                <linearGradient id="blue-gradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#b3e0ff"/>
+                    <stop offset="100%" stop-color="#4e9cff"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <strong>Total microplastics accumulated:</strong> {{ total_microplastics }}<br>
+        <strong>Total mass accumulated:</strong> {{ '%.6f' % total_mass }} g<br>
+        <strong>Reference:</strong> 5g plastic spoon = 100%
+    </div>
+
     {% if scans %}
     <table>
         <thead>
@@ -186,6 +227,41 @@ window.addEventListener('load', () => {
 function confirmClearHistory() {
     return confirm("Are you sure you want to clear the entire scan history?");
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    const handleFillHeight = {{ handle_fill_height|float }};
+    const bowlFillHeight = {{ bowl_fill_height|float }};
+    const handleFillY = {{ handle_fill_y|float }};
+    const bowlFillY = {{ bowl_fill_y|float }};
+
+    const handleRect = document.getElementById('handle-fill');
+    const bowlRect = document.getElementById('bowl-fill');
+    let start = null;
+    const duration = 1200;
+
+    function animateFill(ts) {
+        if (!start) start = ts;
+        const progress = Math.min((ts - start) / duration, 1);
+
+        const currentHandleHeight = handleFillHeight * progress;
+        handleRect.setAttribute('height', currentHandleHeight);
+        handleRect.setAttribute('y', 160 - currentHandleHeight);
+
+        if (handleFillHeight > 0 && bowlFillHeight > 0) {
+            let bowlProgress = Math.max(0, (progress - (handleFillHeight / (handleFillHeight + bowlFillHeight))));
+            bowlProgress = Math.min(bowlProgress * (handleFillHeight + bowlFillHeight) / bowlFillHeight, 1);
+            const currentBowlHeight = bowlFillHeight * bowlProgress;
+            bowlRect.setAttribute('height', currentBowlHeight);
+            bowlRect.setAttribute('y', 70 - currentBowlHeight);
+        }
+
+        if (progress < 1) {
+            requestAnimationFrame(animateFill);
+        }
+    }
+
+    requestAnimationFrame(animateFill);
+});
 </script>
 
 </body>

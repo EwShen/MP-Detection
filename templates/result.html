@@ -60,30 +60,26 @@
             font-size: 1.1rem;
             margin: 0.75rem 0;
         }
-        iframe {
-            margin-top: 1rem;
-            border-radius: 8px;
-        }
     </style>
 </head>
 <body>
-    {% include 'navbar.html' %}
 
+{% include 'navbar.html' %}
 
-    <main>
-        <h1>Scan Result</h1>
+<main>
+    <h1>Scan Result</h1>
 
-        <div class="result-section">
-            <p><b>Object:</b> {{ object_name }}</p>
-            <p><b>Notes:</b> {{ notes }}</p>
-            <p><b>Microplastic Particles:</b> {{ microplastic_particles }}</p>
-            <p><b>Risk Level:</b> {{ risk_level }}</p>
-            <p><b>Eco-Friendly Alternative:</b> {{ alternative }}</p>
-            <hr style="margin: 1.5rem 0;">
-            <p><b>🥄 Just from this {{ object_name }}, you would accumulate:</b> {{ spoon_percentage }}% of a plastic spoon over the next 10 years if used everyday.</p>
-        </div>
+    <div class="result-section">
+        <p><b>Object:</b> {{ object_name }}</p>
+        <p><b>Notes:</b> {{ notes }}</p>
+        <p><b>Microplastic Particles:</b> {{ microplastic_particles }}</p>
+        <p><b>Risk Level:</b> {{ risk_level }}</p>
+        <p><b>Eco-Friendly Alternative:</b> {{ alternative }}</p>
+        <hr style="margin: 1.5rem 0;">
+        <p><b>🥄 Just from this {{ object_name }}, you would accumulate:</b> {{ spoon_percentage }}% of a plastic spoon over the next 10 years if used everyday.</p>
+    </div>
 
-        <iframe src="{{ url_for('static', filename='spoon_animation.html') }}?percent={{ spoon_percentage }}" width="400" height="200" frameborder="0"></iframe>
-    </main>
+</main>
+
 </body>
 </html>
