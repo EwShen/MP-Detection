@@ -150,22 +150,31 @@ def refine():
         return "No object detected", 400
 
     if detected_object == 'bottle':
-        options = ['small bottle', 'medium bottle', 'large bottle', 'very large bottle']
+        options = [
+            'Small Bottle (~237 mL)',
+            'Medium Bottle (~500 mL)',
+            'Large Bottle (~1 L)',
+            'Very Large Bottle (~1 Gal)'
+        ]
     elif detected_object == 'toothbrush':
-        options = ['new toothbrush', 'old toothbrush']
+        options = [
+            'New Toothbrush (Bought over 3 months ago)',
+            'Old Toothbrush (Bought within 3 months)'
+        ]
     elif detected_object == 'cell phone':
-        options = ['new plastic phone case', 'old plastic phone case']
+        options = [
+            'New Plastic Phone Case',
+            'Old Plastic Phone Case'
+        ]
     else:
-        options = [f"plastic {detected_object}"]
+        options = [f"Plastic {detected_object.title()}"]
 
     return render_template('refine.html', options=options, detected_object=detected_object)
 
 @app.route('/result', methods=['POST'])
 def result():
     selected_object = request.form.get('selected_object')
-    if not selected_object:
-        return "No object selected", 400
-
+    print("Selected object:", selected_object)  # Debug print
     data = query_microplastic_data(selected_object)
     if not data:
         return "No data found for selected object", 404
@@ -198,7 +207,42 @@ def result():
 @app.route('/history')
 def history_view():
     history = format_history(get_scan_history())
-    return render_template('history.html', scans=history)
+    # Calculate total microplastics for 10 years of daily exposure
+    total_microplastics = sum([scan['microplastic_count'] for scan in history])
+    total_microplastics_10y = total_microplastics * 10 * 365
+    grams_per_particle = 0.0000002  # 200 nanograms per particle
+    spoon_grams = 5.0               # 5 grams per spoon
+    total_mass = total_microplastics_10y * grams_per_particle
+    spoon_percentage = min(round((total_mass / spoon_grams) * 100, 2), 100)
+
+    # SVG fill calculations
+    handle_height = 90
+    bowl_height = 50
+    total_height = handle_height + bowl_height
+    fill_height = (spoon_percentage / 100.0) * total_height
+
+    if fill_height <= handle_height:
+        handle_fill_height = fill_height
+        bowl_fill_height = 0
+    else:
+        handle_fill_height = handle_height
+        bowl_fill_height = fill_height - handle_height
+
+    # For SVG: y=160 is bottom of handle, y=70 is top of handle/bottom of bowl
+    handle_fill_y = 160 - handle_fill_height
+    bowl_fill_y = 70 - bowl_fill_height
+
+    return render_template(
+        'history.html',
+        scans=history,
+        spoon_percentage=spoon_percentage,
+        total_microplastics=total_microplastics_10y,
+        total_mass=total_mass,
+        handle_fill_height=handle_fill_height,
+        bowl_fill_height=bowl_fill_height,
+        handle_fill_y=handle_fill_y,
+        bowl_fill_y=bowl_fill_y
+    )
 
 @app.route('/about')
 def about():

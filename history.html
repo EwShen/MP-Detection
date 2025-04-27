@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Scan History - SafeSwap</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .btn {
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+        background-color: #45a049;
+        }
+        nav {
+            background-color: #0b3d0b;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        nav a {
+            background-color: #2e7d32;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #388e3c;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        table {
+            width: 90%;
+            max-width: 800px;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        th, td {
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+        th {
+            background-color: #2e7d32;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .no-history {
+            margin-top: 2rem;
+            font-size: 1.2rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    {% include 'navbar.html' %}
+
+    <main>
+        <h1>Scan History</h1>
+
+        <!-- Spoon Fill Visualization (SVG, improved, animated) -->
+        <div style="width: 120px; margin: 0 auto 30px auto; text-align: center;">
+          <div style="font-weight: bold; color: #1f2937; font-size: 1.1rem; margin-bottom: 4px;">{{ spoon_percentage }}% full</div>
+          <svg id="spoon-svg" viewBox="0 0 60 180" width="100%" height="300">
+            <!-- Spoon bowl outline (smaller) -->
+            <ellipse cx="30" cy="45" rx="18" ry="25" fill="#eee" stroke="#888" stroke-width="2"/>
+            <!-- Spoon handle -->
+            <rect x="26" y="70" width="8" height="90" rx="4" fill="#eee" stroke="#888" stroke-width="2"/>
+            <!-- Spoon fill (handle + bowl) -->
+            <clipPath id="spoon-shape">
+              <ellipse cx="30" cy="45" rx="18" ry="25"/>
+              <rect x="26" y="70" width="8" height="90" rx="4"/>
+            </clipPath>
+            <!-- Handle fill -->
+            <rect id="handle-fill" x="26" y="160" width="8" height="0" fill="url(#blue-gradient)" clip-path="url(#spoon-shape)"/>
+            <!-- Bowl fill -->
+            <rect id="bowl-fill" x="12" y="70" width="36" height="0" fill="url(#blue-gradient)" clip-path="url(#spoon-shape)"/>
+            <defs>
+              <linearGradient id="blue-gradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#b3e0ff"/>
+                <stop offset="100%" stop-color="#4e9cff"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div style="text-align: center; margin-bottom: 20px;">
+          <strong>Total microplastics accumulated:</strong> {{ total_microplastics }}<br>
+          <strong>Total mass accumulated:</strong> {{ '%.6f' % total_mass }} g<br>
+          <strong>Reference:</strong> 5g plastic spoon = 100%
+        </div>
+
+        {% if scans %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Object Name</th>
+                    <th>Scan Time</th>
+                    <th>Microplastic Particles</th>
+                    <th>Risk Level</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for entry in scans %}
+                <tr>
+                    <td>{{ entry.object_name }}</td>
+                    <td>{{ entry.time_scanned }}</td>
+                    <td>{{ entry.microplastic_count }}</td>
+                    <td>{{ entry.risk_level }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="no-history">
+            No scan history available yet.
+        </div>
+        {% endif %}
+
+        <form id="clear-history-form" action="/clear-history" method="post" style="margin-top: 2rem;">
+            <button type="submit" class="btn" onclick="return confirmClearHistory();">Clear History</button>
+        </form>
+
+        <script>
+            function confirmClearHistory() {
+                return confirm("Are you sure you want to clear the entire scan history?");
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+              // Values from Flask
+              const handleFillHeight = {{ handle_fill_height|float }};
+              const bowlFillHeight = {{ bowl_fill_height|float }};
+              const handleFillY = {{ handle_fill_y|float }};
+              const bowlFillY = {{ bowl_fill_y|float }};
+              // Animation duration in ms
+              const duration = 1200;
+              // Animate handle
+              const handleRect = document.getElementById('handle-fill');
+              const bowlRect = document.getElementById('bowl-fill');
+              let start = null;
+              function animateFill(ts) {
+                if (!start) start = ts;
+                const progress = Math.min((ts - start) / duration, 1);
+                // Animate handle
+                const currentHandleHeight = handleFillHeight * progress;
+                handleRect.setAttribute('height', currentHandleHeight);
+                handleRect.setAttribute('y', 160 - currentHandleHeight);
+                // Animate bowl (only after handle is full)
+                if (handleFillHeight > 0 && bowlFillHeight > 0) {
+                  let bowlProgress = Math.max(0, (progress - (handleFillHeight / (handleFillHeight + bowlFillHeight))));
+                  bowlProgress = Math.min(bowlProgress * (handleFillHeight + bowlFillHeight) / bowlFillHeight, 1);
+                  const currentBowlHeight = bowlFillHeight * bowlProgress;
+                  bowlRect.setAttribute('height', currentBowlHeight);
+                  bowlRect.setAttribute('y', 70 - currentBowlHeight);
+                }
+                if (progress < 1) {
+                  requestAnimationFrame(animateFill);
+                }
+              }
+              requestAnimationFrame(animateFill);
+            });
+        </script>
+    </main>
+</body>
+</html>
