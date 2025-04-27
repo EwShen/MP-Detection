@@ -82,6 +82,7 @@
         <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="button-group">
             <label for="fileInput" class="btn">Upload Image</label>
             <button type="button" id="startWebcamBtn" class="btn">Start Scanning</button>
+            <button type="button" id="stopWebcamBtn" class="btn" style="display:none;">Stop Scanning</button>
             <input type="file" name="file" accept="image/*" id="fileInput" style="display:none;">
         </form>
         <div id="webcamContainer">
@@ -140,14 +141,38 @@ const loadingSpinner = document.getElementById('loadingSpinner');
 const checkmark = document.getElementById('checkmark');
 const confidenceBarContainer = document.getElementById('confidenceBarContainer');
 const confidenceBar = document.getElementById('confidenceBar');
+let detectionInterval;
+let mediaStream = null;
+
 startWebcamBtn.addEventListener('click', async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-    video.srcObject = stream;
+    mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = mediaStream;
     video.style.display = "block";
     loadingSpinner.style.display = "block";
     confidenceBarContainer.style.display = "block";
-    startDetectionLoop();
+    startWebcamBtn.style.display = "none";
+    stopWebcamBtn.style.display = "inline-block";
+    detectionInterval = startDetectionLoop();
 });
+
+const stopWebcamBtn = document.getElementById('stopWebcamBtn');
+stopWebcamBtn.addEventListener('click', () => {
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+    }
+    if (detectionInterval) {
+        clearInterval(detectionInterval);
+    }
+    video.style.display = "none";
+    canvas.style.display = "none";
+    detectionCanvas.style.display = "none";
+    loadingSpinner.style.display = "none";
+    confidenceBarContainer.style.display = "none";
+    startWebcamBtn.style.display = "inline-block";
+    stopWebcamBtn.style.display = "none";
+    confidenceBar.style.width = "0%";
+});
+
 fileInput.addEventListener('change', async () => {
     if (fileInput.files.length > 0) {
         loadingSpinner.style.display = "block";
@@ -174,7 +199,7 @@ function startDetectionLoop() {
     const detectionCtx = detectionCanvas.getContext('2d');
     const video = document.getElementById('video');
     
-    setInterval(async () => {
+    return setInterval(async () => {
         const context = canvas.getContext('2d');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
