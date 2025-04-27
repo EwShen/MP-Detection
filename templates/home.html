@@ -25,7 +25,16 @@
         .btn { background-color: #0b3d0b; color: #ffffff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Georgia', 'Times New Roman', Times, serif; font-size: 1rem; transition: background-color 0.3s ease, transform 0.2s ease; }
         .btn:hover { background-color: #388e3c; transform: scale(1.05); }
         .image-space { flex: 1; height: 100%; margin-left: 5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; user-select: none; opacity: 0; transition: opacity 1s ease; }
-        #bottleImage { height: 700px; width: auto; transition: transform 1.2s ease, opacity 1.2s ease; }
+        #bottleImage {
+           height: 700px;
+           width: auto;
+           transition: transform 1.2s ease, opacity 1.2s ease;
+           position: absolute; /* Ensures it moves with scrolling */
+           bottom: 0; /* Aligns the image to the bottom of the container */
+           left: 65%; /* Moves the image slightly to the right */
+           transform: translateX(-50%); /* Adjusts for centering */
+       }
+
         #webcamContainer { margin-top: 0.5rem; position: relative; }
         video { margin-top: 0.5rem; display: none; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0,0,0,0.15); max-height: 200px; width: auto; }
         #detectionCanvas { position: absolute; top: 0.5rem; left: 0; display: none; border-radius: 8px; }
@@ -46,10 +55,10 @@
     <nav id="navbar">
         <a href="/">Home</a>
         <a href="/about">About</a>
-        <a href="/references">References</a>
-        <a href="/future-work">Future Work</a>
         <a href="/history">Scan History</a>
-    </nav>
+        <a href="/future-work">Future Work</a>
+        <a href="/references">References</a>
+     </nav>
 </header>
 <main>
     <div class="quote-container" id="quoteContainer">
@@ -75,8 +84,14 @@
             <canvas id="canvas" style="display:none;"></canvas>
             <canvas id="detectionCanvas"></canvas>
         </div>
-        <div id="loadingSpinner">🔍 Scanning...</div>
-        <div id="checkmark">✅</div>
+        <div id="loadingSpinner">
+            <img src="static/mag-glass.png" alt="Magnifying Glass" style="width: 75px; height: 75px; vertical-align: middle;">
+            <span style="font-family: 'Arial', sans-serif; font-size: 1.2rem; color: #374151;">Scanning...</span>
+        </div>
+        <div id="checkmark">
+            <img src="static/checkmark.png" alt="Checkmark" style="width: 75px; height: 75px; vertical-align: middle;">
+            <span style="font-family: 'Arial', sans-serif; font-size: 1.2rem; color: #374151;">Scan complete</span>
+        </div>
         <div id="confidenceBarContainer">
             <div id="confidenceBar"></div>
         </div>
