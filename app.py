@@ -150,13 +150,24 @@ def refine():
         return "No object detected", 400
 
     if detected_object == 'bottle':
-        options = ['small bottle', 'medium bottle', 'large bottle', 'very large bottle']
+        options = [
+            'Small Bottle (~237 mL)',
+            'Medium Bottle (~500 mL)',
+            'Large Bottle (~1 L)',
+            'Very Large Bottle (~1 Gal)'
+        ]
     elif detected_object == 'toothbrush':
-        options = ['new toothbrush', 'old toothbrush']
+        options = [
+            'New Toothbrush (Bought over 3 months ago)',
+            'Old Toothbrush (Bought within 3 months)'
+        ]
     elif detected_object == 'cell phone':
-        options = ['new plastic phone case', 'old plastic phone case']
+        options = [
+            'New Plastic Phone Case',
+            'Old Plastic Phone Case'
+        ]
     else:
-        options = [f"plastic {detected_object}"]
+        options = [f"Plastic {detected_object.title()}"]
 
     return render_template('refine.html', options=options, detected_object=detected_object)
 
