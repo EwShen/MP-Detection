@@ -147,13 +147,18 @@ let mediaStream = null;
 startWebcamBtn.addEventListener('click', async () => {
     mediaStream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = mediaStream;
-    video.style.display = "block";
-    loadingSpinner.style.display = "block";
-    confidenceBarContainer.style.display = "block";
-    startWebcamBtn.style.display = "none";
-    stopWebcamBtn.style.display = "inline-block";
-    detectionInterval = startDetectionLoop();
+
+    // Only show video after it's ready
+    video.addEventListener('loadeddata', () => {
+        video.style.display = "block";
+        loadingSpinner.style.display = "block";
+        confidenceBarContainer.style.display = "block";
+        startWebcamBtn.style.display = "none";
+        stopWebcamBtn.style.display = "inline-block";
+        detectionInterval = startDetectionLoop();
+    }, { once: true });
 });
+
 
 const stopWebcamBtn = document.getElementById('stopWebcamBtn');
 stopWebcamBtn.addEventListener('click', () => {
