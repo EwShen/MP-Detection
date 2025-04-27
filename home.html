@@ -88,12 +88,10 @@
             line-height: 1.75rem;
             color: #374151;
         }
-        /* Upload / Scan paragraph */
         p {
             font-size: 1.25rem;
             margin-bottom: 1.5rem;
         }
-        /* Upload buttons */
         .button-group {
             display: flex;
             gap: 1rem;
@@ -130,13 +128,28 @@
             color: green;
             margin-top: 1.5rem;
         }
+        #confidenceBarContainer {
+            width: 300px;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin-top: 1rem;
+            display: none;
+            overflow: hidden;
+        }
+        #confidenceBar {
+            height: 100%;
+            width: 0%;
+            background-color: red;
+            border-radius: 10px;
+            transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
+        }
         video {
             margin-top: 1rem;
             display: none;
             border-radius: 6px;
             box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
         }
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -187,7 +200,6 @@
             </p>
         </div>
 
-        <!-- 🛠️ Upload / Webcam -->
         <p>Choose to upload an image of an item or use your camera to scan it.</p>
 
         <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="button-group">
@@ -203,6 +215,10 @@
 
         <div id="loadingSpinner">🔍 Scanning...</div>
         <div id="checkmark">✅</div>
+
+        <div id="confidenceBarContainer">
+            <div id="confidenceBar"></div>
+        </div>
     </main>
 
     <script>
@@ -213,12 +229,15 @@
     const uploadForm = document.getElementById('uploadForm');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const checkmark = document.getElementById('checkmark');
+    const confidenceBarContainer = document.getElementById('confidenceBarContainer');
+    const confidenceBar = document.getElementById('confidenceBar');
 
     startWebcamBtn.addEventListener('click', async () => {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
         video.style.display = "block";
         loadingSpinner.style.display = "block";
+        confidenceBarContainer.style.display = "block";
         startDetectionLoop();
     });
 
@@ -249,9 +268,24 @@
             if (result.success) {
                 loadingSpinner.style.display = "none";
                 checkmark.style.display = "block";
+                confidenceBar.style.width = "100%";
+                confidenceBar.style.backgroundColor = "#4caf50";
                 setTimeout(() => {
                     window.location.href = result.redirect_url;
                 }, 2000);
+            } else if (result.confidence !== undefined) {
+                let normalizedConfidence = Math.min(result.confidence / 0.75, 1.0);
+                let confidencePercent = Math.floor(normalizedConfidence * 100);
+
+                confidenceBar.style.width = confidencePercent + "%";
+
+                if (confidencePercent < 50) {
+                    confidenceBar.style.backgroundColor = "red";
+                } else if (confidencePercent < 80) {
+                    confidenceBar.style.backgroundColor = "orange";
+                } else {
+                    confidenceBar.style.backgroundColor = "#4caf50";
+                }
             }
         }, 1500);
     }

@@ -6,7 +6,7 @@ import base64
 from io import BytesIO
 from PIL import Image
 
-# Setup
+# --- Setup ---
 app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -17,7 +17,7 @@ model = YOLO('yolov8s.pt')
 # Allowed detected objects
 allowed_objects = ["bottle", "fork", "spoon", "knife", "cup", "cell phone", "toothbrush"]
 
-# Helper function to query database
+# --- Helper function to query database ---
 def query_microplastic_data(object_name):
     conn = sqlite3.connect('microplastics.sqlite')
     cursor = conn.cursor()
@@ -26,15 +26,16 @@ def query_microplastic_data(object_name):
     conn.close()
     return data
 
-# Helper function to calculate spoon percentage
+# --- Helper function to calculate spoon percentage ---
 def calculate_spoon_percentage(particles_per_use):
     grams_per_particle = 0.0000002  # 200 nanograms per particle
     spoon_grams = 5.0  # average plastic spoon ~5 grams
     days = 365 * 10  # 10 years
-
     accumulated_mass = particles_per_use * grams_per_particle * days
     spoon_fraction = accumulated_mass / spoon_grams
-    return round(spoon_fraction * 100, 2)  # Convert to percentage
+    return round(spoon_fraction * 100, 2)
+
+# --- Routes ---
 
 @app.route('/')
 def home():
@@ -88,6 +89,7 @@ def detect_frame():
 
     results = model.predict(source=temp_path, show=False)
     final_object = None
+    max_confidence = 0.0
     boxes = results[0].boxes
 
     if boxes is not None and boxes.cls.numel() > 0:
@@ -96,16 +98,19 @@ def detect_frame():
             confidence = float(boxes.conf[i])
             label = results[0].names[class_id]
 
-            if label in allowed_objects and confidence >= 0.75:
-                final_object = label
-                break
+            if label in allowed_objects:
+                if confidence > max_confidence:
+                    max_confidence = confidence
+                if confidence >= 0.75:
+                    final_object = label
+                    break
 
     os.remove(temp_path)
 
     if final_object:
         return jsonify({'success': True, 'redirect_url': url_for('refine', detected_object=final_object)})
     else:
-        return jsonify({'success': False})
+        return jsonify({'success': False, 'confidence': max_confidence})
 
 @app.route('/refine')
 def refine():
@@ -157,7 +162,7 @@ def references():
 def future_work():
     return render_template('future_work.html')
 
-# Start server
+# --- Start Server ---
 if __name__ == '__main__':
     if not os.path.exists(UPLOAD_FOLDER):
         os.makedirs(UPLOAD_FOLDER)
