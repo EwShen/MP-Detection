@@ -319,8 +319,10 @@ fileInput.addEventListener('change', () => {
     }
 });
 
+let detectionInterval; // <- ADD THIS AT THE TOP
+
 function startDetectionLoop() {
-    setInterval(async () => {
+    detectionInterval = setInterval(async () => { // <- SAVE interval ID
         const context = canvas.getContext('2d');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
@@ -337,6 +339,7 @@ function startDetectionLoop() {
         const result = await response.json();
 
         if (result.success) {
+            clearInterval(detectionInterval); // <-- STOP scanning after success!
             loadingSpinner.style.display = "none";
             checkmark.style.display = "block";
             confidenceBar.style.width = "100%";
@@ -360,6 +363,7 @@ function startDetectionLoop() {
         }
     }, 1500);
 }
+
 </script>
 
 </body>
