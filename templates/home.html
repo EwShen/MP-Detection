@@ -60,6 +60,11 @@
         <a href="/references">References</a>
      </nav>
 </header>
+
+<div id="toast" style="visibility: hidden; min-width: 250px; margin-left: -125px; background-color: #f44336; color: white; text-align: center; border-radius: 2px; padding: 16px; position: fixed; z-index: 9999; left: 50%; bottom: 30px; font-size: 17px;">
+    No suitable object detected
+</div>
+  
 <main>
     <div class="quote-container" id="quoteContainer">
         <p class="quote-text">
@@ -143,12 +148,27 @@ startWebcamBtn.addEventListener('click', async () => {
     confidenceBarContainer.style.display = "block";
     startDetectionLoop();
 });
-fileInput.addEventListener('change', () => {
+fileInput.addEventListener('change', async () => {
     if (fileInput.files.length > 0) {
         loadingSpinner.style.display = "block";
-        uploadForm.submit();
+        const formData = new FormData(uploadForm);
+        const response = await fetch('/upload', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.redirected) {
+            window.location.href = response.url;
+        } else {
+            loadingSpinner.style.display = "none";
+            const result = await response.json();
+            if (!result.success) {
+                showToast(result.message);
+            }
+        }
     }
 });
+
 function startDetectionLoop() {
     const detectionCanvas = document.getElementById('detectionCanvas');
     const detectionCtx = detectionCanvas.getContext('2d');
@@ -232,6 +252,22 @@ function startDetectionLoop() {
         }
     }, 1500);
 }
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.style.visibility = "visible";
+    toast.style.opacity = "1";
+    setTimeout(() => {
+        toast.style.transition = "opacity 0.5s ease-out";
+        toast.style.opacity = "0";
+    }, 2000); // Visible for 2 seconds
+    setTimeout(() => {
+        toast.style.visibility = "hidden";
+        toast.style.transition = "";
+    }, 2500); // Fully hide after fade-out
+}
+
 </script>
 </body>
 </html>

@@ -110,7 +110,8 @@ def upload():
 
     if final_object:
         return redirect(url_for('refine', detected_object=final_object))
-    return "No suitable object detected", 400
+    return jsonify({'success': False, 'message': 'No suitable object detected'})
+
 
 @app.route('/detect_frame', methods=['POST'])
 def detect_frame():
