@@ -5,7 +5,7 @@ import os
 import base64
 from io import BytesIO
 from PIL import Image
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # --- Setup ---
 app = Flask(__name__)
@@ -44,6 +44,38 @@ def get_scan_history():
     cursor.execute("SELECT object_name, microplastic_count, risk_level, time_scanned FROM scan_history ORDER BY time_scanned DESC")
     history = cursor.fetchall()
     conn.close()
+    return history
+
+def format_history(raw_history):
+    history = []
+    for obj, count, risk, ts in raw_history:
+        dt = None
+        if ts is None:
+            pass
+        elif isinstance(ts, bytes):
+            ts = ts.decode()
+        if isinstance(ts, str):
+            try:
+                dt = datetime.fromisoformat(ts) - timedelta(hours=7)
+            except ValueError:
+                try:
+                    dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    pass
+        elif isinstance(ts, (int, float)):
+            dt = datetime.fromtimestamp(ts)
+        elif isinstance(ts, datetime):
+            dt = ts
+
+        if dt is None:
+            dt = datetime.now()
+
+        history.append({
+            'object_name': obj,
+            'microplastic_count': count,
+            'risk_level': risk,
+            'time_scanned': dt.strftime('%B %d, %Y — %I:%M %p')
+        })
     return history
 
 # --- Routes ---
@@ -86,7 +118,6 @@ def detect_frame():
     if not data or 'image' not in data:
         return jsonify({'success': False}), 400
 
-    # Decode base64 image
     img_data = base64.b64decode(data['image'].split(',',1)[1])
     img = Image.open(BytesIO(img_data)).convert('RGB')
     temp_path = os.path.join(UPLOAD_FOLDER, "frame.jpg")
@@ -118,7 +149,6 @@ def refine():
     if not detected_object:
         return "No object detected", 400
 
-    # Offer refinement options
     if detected_object == 'bottle':
         options = ['small bottle', 'medium bottle', 'large bottle', 'very large bottle']
     elif detected_object == 'toothbrush':
@@ -136,7 +166,6 @@ def result():
     if not selected_object:
         return "No object selected", 400
 
-    # Fetch data
     data = query_microplastic_data(selected_object)
     if not data:
         return "No data found for selected object", 404
@@ -144,7 +173,6 @@ def result():
     _, object_name, notes, particles, risk_level, alternative = data
     spoon_pct = calculate_spoon_percentage(particles)
 
-    # Save to history
     conn = sqlite3.connect('microplastics.sqlite')
     cursor = conn.cursor()
     cursor.execute("""
@@ -154,40 +182,7 @@ def result():
     conn.commit()
     conn.close()
 
-    # 3. Load & format history
-    raw_history = get_scan_history()
-    history = []
-    for obj, count, risk, ts in raw_history:
-        dt = None  # will hold a datetime object
-
-        # ── Normalize ts into a real datetime ─────────────────────────
-        if ts is None:
-            pass  # leave dt = None
-        elif isinstance(ts, bytes):
-            ts = ts.decode()
-        if isinstance(ts, str):
-            try:
-                dt = datetime.fromisoformat(ts)
-            except ValueError:
-                try:
-                    dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
-                except ValueError:
-                    pass
-        elif isinstance(ts, (int, float)):
-            dt = datetime.fromtimestamp(ts)
-        elif isinstance(ts, datetime):
-            dt = ts
-
-        # Fallback if parsing failed
-        if dt is None:
-            dt = datetime.now()
-
-        history.append({
-            'object_name': obj,
-            'microplastic_count': count,
-            'risk_level': risk,
-            'time_scanned': dt.strftime('%B %d, %Y — %I:%M %p')
-        })
+    history = format_history(get_scan_history())
 
     return render_template(
         'result.html',
@@ -202,8 +197,8 @@ def result():
 
 @app.route('/history')
 def history_view():
-    raw = get_scan_history()
-    return render_template('history.html', scans=raw)
+    history = format_history(get_scan_history())
+    return render_template('history.html', scans=history)
 
 @app.route('/about')
 def about():

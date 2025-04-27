@@ -13,6 +13,21 @@
             flex-direction: column;
             min-height: 100vh;
         }
+        .btn {
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+        background-color: #45a049;
+        }
         nav {
             background-color: #0b3d0b;
             padding: 1rem;
@@ -75,11 +90,10 @@
 <body>
     {% include 'navbar.html' %}
 
-
     <main>
         <h1>Scan History</h1>
 
-        {% if history %}
+        {% if scans %}
         <table>
             <thead>
                 <tr>
@@ -90,12 +104,12 @@
                 </tr>
             </thead>
             <tbody>
-                {% for entry in history %}
+                {% for entry in scans %}
                 <tr>
-                    <td>{{ entry[1] }}</td>  <!-- Assuming entry[1] is object_name -->
-                    <td>{{ entry[2] }}</td>  <!-- Assuming entry[2] is scan_time -->
-                    <td>{{ entry[3] }}</td>  <!-- Assuming entry[3] is microplastic_particles -->
-                    <td>{{ entry[4] }}</td>  <!-- Assuming entry[4] is risk_level -->
+                    <td>{{ entry.object_name }}</td>
+                    <td>{{ entry.time_scanned }}</td>
+                    <td>{{ entry.microplastic_count }}</td>
+                    <td>{{ entry.risk_level }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -109,7 +123,7 @@
         <form id="clear-history-form" action="/clear-history" method="post" style="margin-top: 2rem;">
             <button type="submit" class="btn" onclick="return confirmClearHistory();">Clear History</button>
         </form>
-        
+
         <script>
             function confirmClearHistory() {
                 return confirm("Are you sure you want to clear the entire scan history?");
