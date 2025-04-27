@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Refine Object - SafeSwap</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        nav {
+            background-color: #0b3d0b;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        nav a {
+            background-color: #2e7d32;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #388e3c;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+        select {
+            padding: 0.75rem;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            width: 250px;
+        }
+        button {
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/references">References</a>
+        <a href="/future-work">Future Work</a>
+    </nav>
+
+    <main>
+        <h1>Refine Your Object</h1>
+        <h2>Detected: {{ detected_object }}</h2>
+
+        <form action="/result" method="post" class="flex flex-col items-center">
+            <select name="selected_object">
+                {% for option in options %}
+                    <option value="{{ option }}">{{ option }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Submit</button>
+        </form>
+    </main>
+</body>
+</html>

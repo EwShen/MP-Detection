@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>References - SafeSwap</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        nav {
+            background-color: #0b3d0b;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        nav a {
+            background-color: #2e7d32;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #388e3c;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        ul {
+            list-style: disc;
+            padding-left: 2rem;
+            text-align: left;
+            max-width: 800px;
+            font-size: 1.1rem;
+        }
+        a {
+            color: #1e88e5;
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/references">References</a>
+        <a href="/future-work">Future Work</a>
+    </nav>
+
+    <main>
+        <h1>References</h1>
+
+        <ul>
+            <li><b>Bottled Water Microplastic Contamination:</b> <a href="https://pirg.org/articles/does-bottled-water-contain-plastic-particles/" target="_blank">U.S. PIRG (2024)</a></li>
+
+            <li><b>Plastic Utensils and Kitchen Microplastic Sources:</b> 
+                <a href="https://pubmed.ncbi.nlm.nih.gov/38641111/" target="_blank">PubMed</a> | 
+                <a href="https://www.researchgate.net/publication/382541572_Beyond_the_Food_on_Your_Plate" target="_blank">ResearchGate</a>
+            </li>
+
+            <li><b>Disposable Drink Cups:</b> 
+                <a href="https://www.mdpi.com/2076-3417/12/5/2535" target="_blank">MDPI</a> | 
+                <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC10076389/" target="_blank">PMC NIH</a> | 
+                <a href="https://link.springer.com/article/10.1007/s11356-023-25433-7" target="_blank">SpringerLink</a>
+            </li>
+
+            <li><b>Mobile Phone Cases:</b> <a href="https://www.sciencedirect.com/science/article/pii/S0304389422017058" target="_blank">ScienceDirect</a></li>
+
+            <li><b>Toothbrush Microplastic Shedding:</b> <a href="https://www.sciencedirect.com/science/article/pii/S0269749123015129" target="_blank">ScienceDirect</a></li>
+        </ul>
+    </main>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Future Work - SafeSwap</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        nav {
+            background-color: #0b3d0b;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        nav a {
+            background-color: #2e7d32;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #388e3c;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        section {
+            max-width: 800px;
+            text-align: left;
+            font-size: 1.1rem;
+            line-height: 1.75rem;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/references">References</a>
+        <a href="/future-work">Future Work</a>
+    </nav>
+
+    <main>
+        <h1>Future Work</h1>
+
+        <section>
+            <p>Future development will expand the database to include a wider range of products and material types.</p>
+            <p>We plan to optimize SafeSwap for embedded platforms like Raspberry Pi to enable field applications at grocery markets, restaurants, and waste sites.</p>
+            <p>Integration with cloud-based data aggregation will enable large-scale mapping of microplastic contamination patterns and support policymaking efforts.</p>
+            <p>Additional improvements will focus on better material classification, object segmentation, and real-time feedback for an enhanced user experience.</p>
+        </section>
+    </main>
+</body>
+</html>

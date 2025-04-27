@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SafeSwap - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
+    <style>
+        body {
+            background-color: #ffffff;
+            margin: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        nav {
+            background-color: #0b3d0b;
+            padding: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        nav a {
+            background-color: #2e7d32;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        nav a:hover {
+            background-color: #388e3c;
+        }
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            text-align: center;
+            padding-top: 2rem;
+            padding-bottom: 2rem;
+        }
+        .title-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .title-container img {
+            height: 60px;
+            margin-right: 12px;
+        }
+        .title-container h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin: 0;
+        }
+        /* Smithsonian quote */
+        .quote-container {
+            opacity: 0;
+            animation: fadeIn 2.5s ease forwards;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .quote-text {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 2.4rem;
+            font-style: italic;
+            color: #374151;
+        }
+        .quote-source {
+            font-size: 1.5rem;
+            font-style: normal;
+            display: block;
+            margin-top: 0.5rem;
+            color: #555;
+        }
+        /* Bridge paragraph */
+        .bridge-text {
+            opacity: 0;
+            animation: fadeInBridge 2s ease forwards;
+            animation-delay: 3s;
+            text-align: center;
+            margin-bottom: 2rem;
+            max-width: 800px;
+            font-size: 1.2rem;
+            line-height: 1.75rem;
+            color: #374151;
+        }
+        /* Upload / Scan paragraph */
+        p {
+            font-size: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+        /* Upload buttons */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .btn {
+            background-color: #4caf50;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            text-align: center;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #45a049;
+        }
+        #loadingSpinner {
+            display: none;
+            margin-top: 2rem;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2e7d32;
+            animation: blink 1s infinite;
+        }
+        #checkmark {
+            display: none;
+            font-size: 3rem;
+            color: green;
+            margin-top: 1.5rem;
+        }
+        video {
+            margin-top: 1rem;
+            display: none;
+            border-radius: 6px;
+            box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+        }
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes fadeInBridge {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+
+<body>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/about">About</a>
+        <a href="/references">References</a>
+        <a href="/future-work">Future Work</a>
+    </nav>
+
+    <main>
+        <!-- 🏷️ Title + Logo -->
+        <div class="title-container">
+            <img src="{{ url_for('static', filename='safeswap.png') }}" alt="SafeSwap Logo">
+            <h1>SafeSwap</h1>
+        </div>
+
+        <!-- 📜 Smithsonian Quote -->
+        <div class="quote-container">
+            <p class="quote-text">
+                "The Human Brain May Contain as Much as a Spoon’s Worth of Microplastics"
+                <br>
+                <span class="quote-source">– Smithsonian Magazine</span>
+            </p>
+        </div>
+
+        <!-- 🌉 Bridge Text -->
+        <div class="bridge-text">
+            <p>
+                Microplastics are tiny plastic fragments less than 5 millimeters in diameter. Emerging research warns of their largely unknown effects on human health.
+            </p>
+            <p>
+                SafeSwap uses cutting-edge computer vision and object detection to help you identify everyday items that may contribute to microplastic exposure over time.
+            </p>
+        </div>
+
+        <!-- 🛠️ Upload / Webcam -->
+        <p>Choose to upload an image of an item or use your camera to scan it.</p>
+
+        <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="button-group">
+            <input type="file" name="file" accept="image/*" id="fileInput" style="display:none;">
+            <label for="fileInput" class="btn">Upload Image</label>
+            <button type="button" id="startWebcamBtn" class="btn">Start Scanning</button>
+        </form>
+
+        <div id="webcamContainer">
+            <video id="video" width="320" height="240" autoplay muted></video>
+            <canvas id="canvas" style="display:none;"></canvas>
+        </div>
+
+        <div id="loadingSpinner">🔍 Scanning...</div>
+        <div id="checkmark">✅</div>
+    </main>
+
+    <script>
+    const startWebcamBtn = document.getElementById('startWebcamBtn');
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const fileInput = document.getElementById('fileInput');
+    const uploadForm = document.getElementById('uploadForm');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const checkmark = document.getElementById('checkmark');
+
+    startWebcamBtn.addEventListener('click', async () => {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+        video.style.display = "block";
+        loadingSpinner.style.display = "block";
+        startDetectionLoop();
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length > 0) {
+            loadingSpinner.style.display = "block";
+            uploadForm.submit();
+        }
+    });
+
+    function startDetectionLoop() {
+        setInterval(async () => {
+            const context = canvas.getContext('2d');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const dataURL = canvas.toDataURL('image/jpeg');
+
+            const response = await fetch('/detect_frame', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: dataURL })
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                loadingSpinner.style.display = "none";
+                checkmark.style.display = "block";
+                setTimeout(() => {
+                    window.location.href = result.redirect_url;
+                }, 2000);
+            }
+        }, 1500);
+    }
+    </script>
+</body>
+</html>
