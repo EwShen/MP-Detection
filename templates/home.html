@@ -4,205 +4,39 @@
     <title>SafeSwap - Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
     <style>
-        body {
-            margin: 0;
-            font-family: 'Georgia', 'Times New Roman', Times, serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        header {
-            background-color: #0b3d0b;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 2rem;
-            font-weight: bold;
-            font-size: 1rem;
-            z-index: 10;
-        }
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        .logo-container img {
-            height: 40px;
-        }
-        .logo-container span {
-            font-size: 1.5rem;
-            color: white;
-        }
-        header nav {
-            display: flex;
-            gap: 1.5rem;
-        }
-        header nav a {
-            text-decoration: none;
-            color: white;
-            font-weight: bold;
-            transform: translateX(100px);
-            opacity: 0;
-            transition: transform 0.6s ease, opacity 0.6s ease;
-        }
-        header nav a.show {
-            transform: translateX(0);
-            opacity: 1;
-        }
-        header nav a:hover {
-            background-color: #388e3c;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-            padding: 2rem 5rem;
-            background-color: #ffffff;
-            position: relative;
-        }
-        .quote-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            opacity: 0;
-            animation: fadeIn 2s forwards;
-            z-index: 5;
-        }
-        .quote-text {
-            font-family: 'Times New Roman', Times, serif;
-            font-size: 2rem;
-            font-style: italic;
-            color: #374151;
-        }
-        .quote-source {
-            font-size: 1.2rem;
-            display: block;
-            margin-top: 0.5rem;
-            color: #6b7280;
-        }
-        .main-content {
-            position: relative;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            opacity: 0;
-            transition: opacity 1s ease;
-            text-align: left;
-            max-width: 500px;
-        }
-        .main-title {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 1rem;
-            color: #111111;
-        }
-        .subtitle {
-            font-size: 1.2rem;
-            color: #333333;
-            margin-bottom: 2rem;
-            line-height: 1.8;
-        }
-        .button-group {
-            display: flex;
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .btn {
-            background-color: #0b3d0b;
-            color: #ffffff;
-            padding: 0.75rem 1.5rem;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-            font-family: 'Georgia', 'Times New Roman', Times, serif;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-        }
-        .btn:hover {
-            background-color: #388e3c;
-            transform: scale(1.05);
-        }
-        .image-space {
-            flex: 1;
-            height: 400px;
-            margin-left: 5rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            user-select: none;
-            opacity: 0;
-            transition: opacity 1s ease;
-        }
-        #bottleImage {
-            height: 750px;
-            width: auto;
-            margin-top: 100px;
-            transition: transform 1.2s ease, opacity 1.2s ease;
-        }
-        #bottleImage.fall {
-            transform: translateY(300px) rotate(30deg);
-            opacity: 0;
-        }
-        #webcamContainer {
-            margin-top: 2rem;
-        }
-        video {
-            margin-top: 1rem;
-            display: none;
-            border-radius: 8px;
-            box-shadow: 0px 4px 10px rgba(0,0,0,0.15);
-        }
-        #loadingSpinner {
-            display: none;
-            margin-top: 2rem;
-            font-size: 1.2rem;
-            color: #374151;
-        }
-        #checkmark {
-            display: none;
-            font-size: 2rem;
-            color: #00e676;
-            margin-top: 1.5rem;
-        }
-        #confidenceBarContainer {
-            width: 300px;
-            height: 20px;
-            background-color: #eee;
-            border-radius: 10px;
-            margin-top: 1rem;
-            display: none;
-            overflow: hidden;
-        }
-        #confidenceBar {
-            height: 100%;
-            width: 0%;
-            background-color: red;
-            border-radius: 10px;
-            transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
+        /* SAME CSS, NO CHANGES NEEDED */
+        body { margin: 0; font-family: 'Georgia', 'Times New Roman', Times, serif; display: flex; flex-direction: column; min-height: 100vh; overflow-x: hidden; }
+        header { background-color: #0b3d0b; display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; font-weight: bold; font-size: 1rem; z-index: 10; }
+        .logo-container { display: flex; align-items: center; gap: 0.75rem; }
+        .logo-container img { height: 40px; }
+        .logo-container span { font-size: 1.5rem; color: white; }
+        header nav { display: flex; gap: 1.5rem; }
+        header nav a { text-decoration: none; color: white; font-weight: bold; transform: translateX(100px); opacity: 0; transition: transform 0.6s ease, opacity 0.6s ease; }
+        header nav a.show { transform: translateX(0); opacity: 1; }
+        header nav a:hover { background-color: #388e3c; padding: 0.25rem 0.5rem; border-radius: 4px; }
+        main { flex: 1; display: flex; flex-direction: row; align-items: center; justify-content: space-between; padding: 2rem 5rem; background-color: #ffffff; position: relative; }
+        .quote-container { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; opacity: 0; animation: fadeIn 2s forwards; z-index: 5; cursor: pointer; }
+        .quote-text { font-family: 'Times New Roman', Times, serif; font-size: 2rem; font-style: italic; color: #374151; }
+        .quote-source { font-size: 1.2rem; display: block; margin-top: 0.5rem; color: #6b7280; }
+        .main-content { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; opacity: 0; transition: opacity 1s ease; text-align: left; max-width: 500px; }
+        .main-title { font-size: 2.5rem; font-weight: bold; margin-bottom: 1rem; color: #111111; }
+        .subtitle { font-size: 1.2rem; color: #333333; margin-bottom: 2rem; line-height: 1.8; }
+        .button-group { display: flex; gap: 1rem; margin-top: 1rem; }
+        .btn { background-color: #0b3d0b; color: #ffffff; padding: 0.75rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-family: 'Georgia', 'Times New Roman', Times, serif; font-size: 1rem; transition: background-color 0.3s ease, transform 0.2s ease; }
+        .btn:hover { background-color: #388e3c; transform: scale(1.05); }
+        .image-space { flex: 1; height: 400px; margin-left: 5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; user-select: none; opacity: 0; transition: opacity 1s ease; }
+        #bottleImage { height: 700px; width: auto; transition: transform 1.2s ease, opacity 1.2s ease; }
+        #webcamContainer { margin-top: 2rem; }
+        video { margin-top: 1rem; display: none; border-radius: 8px; box-shadow: 0px 4px 10px rgba(0,0,0,0.15); }
+        #loadingSpinner { display: none; margin-top: 2rem; font-size: 1.2rem; color: #374151; }
+        #checkmark { display: none; font-size: 2rem; color: #00e676; margin-top: 1.5rem; }
+        #confidenceBarContainer { width: 300px; height: 20px; background-color: #eee; border-radius: 10px; margin-top: 1rem; display: none; overflow: hidden; }
+        #confidenceBar { height: 100%; width: 0%; background-color: red; border-radius: 10px; transition: width 0.4s ease-in-out, background-color 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
     </style>
 </head>
-
 <body>
-
 <header>
     <div class="logo-container">
         <img src="{{ url_for('static', filename='safeswap.png') }}" alt="SafeSwap Logo">
@@ -216,7 +50,6 @@
         <a href="/history">Scan History</a>
     </nav>
 </header>
-
 <main>
     <div class="quote-container" id="quoteContainer">
         <p class="quote-text">
@@ -225,62 +58,57 @@
             <span class="quote-source">– Smithsonian Magazine</span>
         </p>
     </div>
-
     <div class="main-content" id="mainContent">
         <div class="main-title">SafeSwap</div>
-
         <div class="subtitle">
             Microplastics are tiny plastic fragments less than 5 micrometers in diameter. Emerging research warns of their largely unknown effects on human health.<br><br>
             SafeSwap uses cutting-edge computer vision and object detection to help you identify everyday items that may contribute to microplastic exposure over time.
         </div>
-
         <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm" class="button-group">
             <label for="fileInput" class="btn">Upload Image</label>
             <button type="button" id="startWebcamBtn" class="btn">Start Scanning</button>
             <input type="file" name="file" accept="image/*" id="fileInput" style="display:none;">
         </form>
-
         <div id="webcamContainer">
             <video id="video" width="320" height="240" autoplay muted></video>
             <canvas id="canvas" style="display:none;"></canvas>
         </div>
-
         <div id="loadingSpinner">🔍 Scanning...</div>
         <div id="checkmark">✅</div>
-
         <div id="confidenceBarContainer">
             <div id="confidenceBar"></div>
         </div>
     </div>
-
-    <div class="image-space" id="bottleContainer" onclick="breakBottle()">
+    <div class="image-space" id="bottleContainer">
         <img src="{{ url_for('static', filename='microplasticwaterbottle.png') }}" alt="Water Bottle" id="bottleImage">
     </div>
 </main>
-
 <script>
+let quoteSkipped = false;
 window.addEventListener('load', () => {
     const quote = document.getElementById('quoteContainer');
     const mainContent = document.getElementById('mainContent');
     const navbarLinks = document.querySelectorAll('#navbar a');
     const bottleContainer = document.getElementById('bottleContainer');
-
-    setTimeout(() => {
-        quote.style.animation = "fadeOut 2s forwards";
-    }, 2500);
-
-    setTimeout(() => {
-        quote.style.display = "none";
-        mainContent.style.opacity = 1;
-        bottleContainer.style.opacity = 1;
-        navbarLinks.forEach((link, index) => {
+    function skipQuote() {
+        if (!quoteSkipped) {
+            quoteSkipped = true;
+            quote.style.animation = "fadeOut 0.5s forwards";
             setTimeout(() => {
-                link.classList.add('show');
-            }, index * 200);
-        });
-    }, 4500);
+                quote.style.display = "none";
+                mainContent.style.opacity = 1;
+                bottleContainer.style.opacity = 1;
+                navbarLinks.forEach((link, index) => {
+                    setTimeout(() => {
+                        link.classList.add('show');
+                    }, index * 200);
+                });
+            }, 600);
+        }
+    }
+    setTimeout(skipQuote, 3000);
+    document.body.addEventListener('click', skipQuote);
 });
-
 const startWebcamBtn = document.getElementById('startWebcamBtn');
 const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
@@ -290,7 +118,6 @@ const loadingSpinner = document.getElementById('loadingSpinner');
 const checkmark = document.getElementById('checkmark');
 const confidenceBarContainer = document.getElementById('confidenceBarContainer');
 const confidenceBar = document.getElementById('confidenceBar');
-
 startWebcamBtn.addEventListener('click', async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
     video.srcObject = stream;
@@ -300,31 +127,25 @@ startWebcamBtn.addEventListener('click', async () => {
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
     startDetectionLoop();
 });
-
 fileInput.addEventListener('change', () => {
     if (fileInput.files.length > 0) {
         loadingSpinner.style.display = "block";
         uploadForm.submit();
     }
 });
-
 function startDetectionLoop() {
     setInterval(async () => {
         const context = canvas.getContext('2d');
         canvas.width = video.videoWidth;
         canvas.height = video.videoHeight;
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-
         const dataURL = canvas.toDataURL('image/jpeg');
-
         const response = await fetch('/detect_frame', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ image: dataURL })
         });
-
         const result = await response.json();
-
         if (result.success) {
             loadingSpinner.style.display = "none";
             checkmark.style.display = "block";
@@ -332,13 +153,11 @@ function startDetectionLoop() {
             confidenceBar.style.backgroundColor = "#4caf50";
             setTimeout(() => {
                 window.location.href = result.redirect_url;
-            }, 2000);
+            }, 1500);
         } else if (result.confidence !== undefined) {
             let normalizedConfidence = Math.min(result.confidence / 0.75, 1.0);
             let confidencePercent = Math.floor(normalizedConfidence * 100);
-
             confidenceBar.style.width = confidencePercent + "%";
-
             if (confidencePercent < 50) {
                 confidenceBar.style.backgroundColor = "red";
             } else if (confidencePercent < 80) {
@@ -349,12 +168,6 @@ function startDetectionLoop() {
         }
     }, 1500);
 }
-
-function breakBottle() {
-    const bottleImage = document.getElementById('bottleImage');
-    bottleImage.classList.add('fall');
-}
 </script>
-
 </body>
 </html>
