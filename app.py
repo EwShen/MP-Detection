@@ -12,13 +12,17 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
 # Load YOLOv8 model
 model = YOLO('yolov8s.pt')
 
 # Allowed detected objects
 allowed_objects = ["bottle", "fork", "spoon", "knife", "cup", "cell phone", "toothbrush"]
 
-# --- Helper function to query database ---
+# --- Helper functions ---
+
 def query_microplastic_data(object_name):
     conn = sqlite3.connect('microplastics.sqlite')
     cursor = conn.cursor()
@@ -27,27 +31,20 @@ def query_microplastic_data(object_name):
     conn.close()
     return data
 
-# --- Helper function to calculate spoon percentage ---
 def calculate_spoon_percentage(particles_per_use):
-    grams_per_particle = 0.0000002  # 200 nanograms per particle
-    spoon_grams = 5.0  # average plastic spoon ~5 grams
-    days = 365 * 10  # 10 years
+    grams_per_particle = 0.0000002  # 200 nanograms
+    spoon_grams = 5.0               # average plastic spoon ~5g
+    days = 365 * 10                 # 10 years
     accumulated_mass = particles_per_use * grams_per_particle * days
-    spoon_fraction = accumulated_mass / spoon_grams
-    return round(spoon_fraction * 100, 2)
+    return round((accumulated_mass / spoon_grams) * 100, 2)
 
 def get_scan_history():
-    # Connect to the SQLite database
     conn = sqlite3.connect('microplastics.sqlite')
     cursor = conn.cursor()
-    # Query to fetch all scan history, ordered by scan_time
-    cursor.execute("SELECT * FROM scan_history ORDER BY scan_time DESC")
-    # Fetch all rows from the result
+    cursor.execute("SELECT object_name, microplastic_count, risk_level, time_scanned FROM scan_history ORDER BY time_scanned DESC")
     history = cursor.fetchall()
-    # Close the connection
     conn.close()
     return history
-
 
 # --- Routes ---
 
@@ -59,34 +56,29 @@ def home():
 def upload():
     if 'file' not in request.files:
         return "No file part", 400
-
     file = request.files['file']
     if file.filename == '':
         return "No selected file", 400
 
-    filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-    file.save(filepath)
+    path = os.path.join(UPLOAD_FOLDER, file.filename)
+    file.save(path)
 
-    results = model.predict(source=filepath, show=False)
+    results = model.predict(source=path, show=False)
+    os.remove(path)
+
     final_object = None
     boxes = results[0].boxes
-
-    if boxes is not None and boxes.cls.numel() > 0:
+    if boxes and boxes.cls.numel() > 0:
         for i in range(len(boxes.cls)):
-            class_id = int(boxes.cls[i])
-            confidence = float(boxes.conf[i])
-            label = results[0].names[class_id]
-
-            if label in allowed_objects and confidence >= 0.75:
+            label = results[0].names[int(boxes.cls[i])]
+            conf  = float(boxes.conf[i])
+            if label in allowed_objects and conf >= 0.75:
                 final_object = label
                 break
 
-    os.remove(filepath)
-
     if final_object:
         return redirect(url_for('refine', detected_object=final_object))
-    else:
-        return "No suitable object detected", 400
+    return "No suitable object detected", 400
 
 @app.route('/detect_frame', methods=['POST'])
 def detect_frame():
@@ -94,44 +86,39 @@ def detect_frame():
     if not data or 'image' not in data:
         return jsonify({'success': False}), 400
 
-    image_data = data['image'].split(",")[1]
-    image_bytes = base64.b64decode(image_data)
-    image = Image.open(BytesIO(image_bytes)).convert('RGB')
-
+    # Decode base64 image
+    img_data = base64.b64decode(data['image'].split(',',1)[1])
+    img = Image.open(BytesIO(img_data)).convert('RGB')
     temp_path = os.path.join(UPLOAD_FOLDER, "frame.jpg")
-    image.save(temp_path)
+    img.save(temp_path)
 
     results = model.predict(source=temp_path, show=False)
+    os.remove(temp_path)
+
     final_object = None
-    max_confidence = 0.0
+    max_conf = 0.0
     boxes = results[0].boxes
-
-    if boxes is not None and boxes.cls.numel() > 0:
+    if boxes and boxes.cls.numel() > 0:
         for i in range(len(boxes.cls)):
-            class_id = int(boxes.cls[i])
-            confidence = float(boxes.conf[i])
-            label = results[0].names[class_id]
-
+            label = results[0].names[int(boxes.cls[i])]
+            conf  = float(boxes.conf[i])
             if label in allowed_objects:
-                if confidence > max_confidence:
-                    max_confidence = confidence
-                if confidence >= 0.75:
+                max_conf = max(max_conf, conf)
+                if conf >= 0.75:
                     final_object = label
                     break
 
-    os.remove(temp_path)
-
     if final_object:
         return jsonify({'success': True, 'redirect_url': url_for('refine', detected_object=final_object)})
-    else:
-        return jsonify({'success': False, 'confidence': max_confidence})
+    return jsonify({'success': False, 'confidence': max_conf})
 
 @app.route('/refine')
 def refine():
-    detected_object = request.args.get('detected_object', None)
+    detected_object = request.args.get('detected_object')
     if not detected_object:
         return "No object detected", 400
 
+    # Offer refinement options
     if detected_object == 'bottle':
         options = ['small bottle', 'medium bottle', 'large bottle', 'very large bottle']
     elif detected_object == 'toothbrush':
@@ -145,57 +132,78 @@ def refine():
 
 @app.route('/result', methods=['POST'])
 def result():
-    selected_object = request.form.get('selected_object', None)
-    
+    selected_object = request.form.get('selected_object')
     if not selected_object:
         return "No object selected", 400
 
+    # Fetch data
     data = query_microplastic_data(selected_object)
-    if data:
-        id, object_name, notes, microplastic_particles, risk_level, alternative = data
-        spoon_percentage = calculate_spoon_percentage(microplastic_particles)
-        
-        # Save scan history
-        conn = sqlite3.connect('microplastics.sqlite')
-        cursor = conn.cursor()
-        cursor.execute('''
-            INSERT INTO scan_history (object_name, microplastic_count, risk_level)
-            VALUES (?, ?, ?)
-        ''', (object_name, microplastic_particles, risk_level))
-        conn.commit()
-        conn.close()
-        
-        # Format scan_time for better readability
-        for entry in history:
-            if isinstance(entry['time_scanned'], str):
-                # If it's a string timestamp, parse it first
-                dt = datetime.fromisoformat(entry['time_scanned'])
-            else:
-                dt = entry['time_scanned']
-            entry['time_scanned'] = dt.strftime('%B %d, %Y — %I:%M %p')
-
-        
-        return render_template('result.html',
-                               object_name=object_name,
-                               notes=notes,
-                               microplastic_particles=microplastic_particles,
-                               risk_level=risk_level,
-                               alternative=alternative,
-                               spoon_percentage=spoon_percentage)
-    else:
+    if not data:
         return "No data found for selected object", 404
 
+    _, object_name, notes, particles, risk_level, alternative = data
+    spoon_pct = calculate_spoon_percentage(particles)
 
-@app.route('/history')
-def history():
-    # Get the scan history from the database
+    # Save to history
     conn = sqlite3.connect('microplastics.sqlite')
     cursor = conn.cursor()
-    cursor.execute('SELECT object_name, microplastic_count, risk_level, time_scanned FROM scan_history ORDER BY time_scanned DESC')
-    scans = cursor.fetchall()
+    cursor.execute("""
+        INSERT INTO scan_history (object_name, microplastic_count, risk_level, time_scanned)
+        VALUES (?, ?, ?, datetime('now'))
+    """, (object_name, particles, risk_level))
+    conn.commit()
     conn.close()
-    
-    return render_template('history.html', scans=scans)
+
+    # 3. Load & format history
+    raw_history = get_scan_history()
+    history = []
+    for obj, count, risk, ts in raw_history:
+        dt = None  # will hold a datetime object
+
+        # ── Normalize ts into a real datetime ─────────────────────────
+        if ts is None:
+            pass  # leave dt = None
+        elif isinstance(ts, bytes):
+            ts = ts.decode()
+        if isinstance(ts, str):
+            try:
+                dt = datetime.fromisoformat(ts)
+            except ValueError:
+                try:
+                    dt = datetime.strptime(ts, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    pass
+        elif isinstance(ts, (int, float)):
+            dt = datetime.fromtimestamp(ts)
+        elif isinstance(ts, datetime):
+            dt = ts
+
+        # Fallback if parsing failed
+        if dt is None:
+            dt = datetime.now()
+
+        history.append({
+            'object_name': obj,
+            'microplastic_count': count,
+            'risk_level': risk,
+            'time_scanned': dt.strftime('%B %d, %Y — %I:%M %p')
+        })
+
+    return render_template(
+        'result.html',
+        object_name=object_name,
+        notes=notes,
+        microplastic_particles=particles,
+        risk_level=risk_level,
+        alternative=alternative,
+        spoon_percentage=spoon_pct,
+        history=history
+    )
+
+@app.route('/history')
+def history_view():
+    raw = get_scan_history()
+    return render_template('history.html', scans=raw)
 
 @app.route('/about')
 def about():
@@ -211,16 +219,12 @@ def future_work():
 
 @app.route('/clear-history', methods=['POST'])
 def clear_history():
-    conn = sqlite3.connect('your_database_name.db')  # use your real db filename
-    c = conn.cursor()
-    c.execute('DELETE FROM scan_history')
+    conn = sqlite3.connect('microplastics.sqlite')
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM scan_history')
     conn.commit()
     conn.close()
-    return redirect('/history')
+    return redirect(url_for('history_view'))
 
-
-# --- Start Server ---
 if __name__ == '__main__':
-    if not os.path.exists(UPLOAD_FOLDER):
-        os.makedirs(UPLOAD_FOLDER)
     app.run(debug=True)
