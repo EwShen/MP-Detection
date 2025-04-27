@@ -1,0 +1,1 @@
+web: gunicorn MP-Detection.app:app
