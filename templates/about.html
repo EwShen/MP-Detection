@@ -5,40 +5,20 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='globals.css') }}">
     <style>
         body {
-            background-color: #0b3d0b;
             margin: 0;
             font-family: 'Georgia', 'Times New Roman', Times, serif;
-            color: #d1d5db;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-        }
-        main {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: center;
-            padding: 4rem 5rem;
-            text-align: left;
-        }
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            font-weight: bold;
-            color: white;
-        }
-        section {
-            max-width: 800px;
-            font-size: 1.2rem;
-            line-height: 1.8;
+            overflow-x: hidden;
+            background-color: #ffffff;
         }
         header {
+            background-color: #0b3d0b;
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 1.5rem 2rem;
-            background-color: #0b3d0b;
             font-weight: bold;
             font-size: 1rem;
             z-index: 10;
@@ -76,16 +56,35 @@
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
         }
-        footer {
-            padding: 1rem;
+        main {
+            flex: 1;
+            padding: 2rem 5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             text-align: center;
-            font-size: 0.9rem;
-            color: #d1d5db;
-            background-color: #0b3d0b;
-            z-index: 10;
+            background-color: #ffffff;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            color: #111111;
+        }
+        section {
+            max-width: 800px;
+            text-align: left;
+            font-size: 1.1rem;
+            color: #333333;
+            line-height: 1.8;
+        }
+        p {
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
+
 <body>
 
 <header>
@@ -104,6 +103,7 @@
 
 <main>
     <h1>About SafeSwap</h1>
+
     <section>
         <p>Recent studies estimate that the human brain may contain as much as a spoon’s worth of microplastics over a lifetime. As global dependence on plastics increases unsustainably, microplastic exposure's health and ecological impacts have emerged as critical areas of concern. Microplastics, tiny plastic particles less than 5 micrometers in size, fragment from common consumer products like water bottles, toothbrushes, utensils, and packaging.</p>
 
@@ -112,10 +112,6 @@
         <p>SafeSwap utilizes OpenCV and YOLOv8 to detect likely microplastic sources through real-time scanning, integrating detection results with a custom database to help users assess risks and encourage sustainable alternatives.</p>
     </section>
 </main>
-
-<footer>
-    SafeSwap Project — Empowering Safer Choices
-</footer>
 
 <script>
 window.addEventListener('load', () => {
