@@ -1,4 +1,4 @@
-# MP-Detection
+# SafeSwap
 
 Microplastic detection in everyday objects using computer vision.
 
